@@ -1,0 +1,290 @@
+﻿@page "/form"
+
+@using MudBlazor
+@using System.Text.RegularExpressions
+@using System.ComponentModel.DataAnnotations
+@inject ISnackbar Snackbar
+
+<h3>Form</h3>
+
+<MudGrid>
+    <MudItem xs="12">
+        <MudPaper Class="pa-4">
+            <MudForm @ref="form" @bind-IsValid="@success" @bind-Errors="@errors">
+                <MudTextField @bind-Value="f.Username"
+                              Label="Username"
+                              Required="true"
+                              RequiredError="User name is required!" />
+
+
+                <MudTextField @bind-Value="f.Email"
+                              Label="Email"
+                              Required="true"
+                              RequiredError="Email is required!"
+                              Validation="@(new EmailAddressAttribute() {ErrorMessage = "The email address is invalid"})" />
+
+                <MudGrid>
+                    <MudItem xs="6">
+                        <MudTextField @bind-Value="f.FirstName"
+                                      Label="First Name"
+                                      Required="true"
+                                      RequiredError="First name is required!" />
+                    </MudItem>
+                    <MudItem xs="6">
+                        <MudTextField @bind-Value="f.LastName"
+                                      Label="Last Name"
+                                      Required="true"
+                                      RequiredError="Last name is required!" />
+                    </MudItem>
+                </MudGrid>
+
+                <MudDatePicker @bind-Date="f.DateOfBirth"
+                               For="@(() => f.DateOfBirth)"
+                               Required="true"
+                               RequiredError="Date of Birth is required!" />
+
+                <MudTextField @bind-Value="f.Password"
+                              Label="Password"
+                              HelperText="Choose a strong password"
+                              @ref="pwField1"
+                              InputType="InputType.Password"
+                              Validation="@(new Func<string, IEnumerable<string>>(PasswordStrength))" Required="true"
+                              RequiredError="Password is required!" />
+
+                <MudTextField @bind-Value="f.Password2"
+                              Label="Password"
+                              HelperText="Repeat the password"
+                              InputType="InputType.Password"
+                              Validation="@(new Func<string, string>(PasswordMatch))" />
+
+                <MudSwitch @bind-Value="f.OnOffSwitch" Label="On/Off Switch" Color="Color.Success" />
+
+                <MudSelect @bind-Value="f.CoffeeOrTeaId"
+                           Label="Drink"
+                           Variant="Variant.Outlined"
+                           AnchorOrigin="Origin.BottomCenter">
+                    @foreach (var drink in Drinks)
+                    {
+                        <MudSelectItem Value="@drink.Key">@drink.Value</MudSelectItem/>
+                    }
+
+                </MudSelect>
+
+                @if (f.CoffeeOrTeaId == 3)
+                {
+                    <MudTextField @bind-Value="f.CoffeeOrTeaOther"
+                                  Label="If not Coffee or Tea then what?"
+                                  Required="true"
+                                  RequiredError="CoffeeOrTeaOther is required!" />
+                }
+
+                <div class="d-flex">
+                    <MudRadioGroup @bind-Value="f.AccountTypeRadioOption"
+                                   Required="true"
+                                   RequiredError="Account type is required!">
+                        @foreach (var option in AccountTypeRadioOptions)
+                        {
+                            <MudRadio Value="@option.Value">@option.Value</MudRadio>
+                        }
+                    </MudRadioGroup>
+                </div>
+
+                <div class="d-flex align-center justify-space-between">
+                    <MudCheckBox @bind-Value="f.AgreeCheckboxValue"
+                                 T="bool"
+                                 Required="true"
+                                 RequiredError="You must agree"
+                                 Label="I agree!" />
+
+
+                    <MudButton Variant="Variant.Filled"
+                               Color="Color.Primary"
+                               Disabled="@(!success)"
+                               Class="ml-auto"
+                               OnClick="@(()=>Submit())">
+                        Register
+                    </MudButton>
+                </div>
+            </MudForm>
+        </MudPaper>
+
+
+        <MudPaper Class="pa-4 mt-4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>FillData())">Fill Data</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" DisableElevation="true" OnClick="@(()=>form.Validate())">Validate</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" DisableElevation="true" OnClick="@(()=>form.ResetAsync())" Class="mx-2">Reset</MudButton>
+            <MudButton Variant="Variant.Filled" DisableElevation="true" OnClick="@(()=>form.ResetValidation())">Reset Validation</MudButton>
+        </MudPaper>
+
+
+    </MudItem>
+    <MudItem xs="12" sm="12">
+        <MudPaper Class="pa-4 mud-height-full">
+            <MudText Typo="Typo.subtitle2">@($"Errors ({errors.Length})")</MudText>
+            @foreach (var error in errors)
+            {
+                <MudText Color="@Color.Error">@error</MudText>
+            }
+        </MudPaper>
+    </MudItem>
+
+    @if (showValues)
+    {
+        <h2>List of values</h2>
+        <MudItem xs="12" sm="12">
+            <MudPaper Class="pa-4 mud-height-full">
+                <p>
+                    <ul>Username: @f.Username</ul>
+                    <ul>Email: @f.Email</ul>
+                    <ul>First Name: @f.FirstName</ul>
+                    <ul>Last Name: @f.LastName</ul>
+                    <ul>Date of Birth: @(f.DateOfBirth.HasValue ? f.DateOfBirth.Value.ToShortDateString() : string.Empty) </ul>
+                    <ul>Password: @f.Password</ul>
+                    <ul>Password2: @f.Password2</ul>
+                    <ul>OnOffSwitch: @f.OnOffSwitch</ul>
+                    <ul>Coffee Or Tea: @f.CoffeeOrTeaId</ul>
+                    <ul>Coffee Or Tea Other: @f.CoffeeOrTeaOther</ul>
+                    <ul>AccountTypeRadioOption: @f.AccountTypeRadioOption</ul>
+                    <ul>Agree: @f.AgreeCheckboxValue</ul>
+
+                </p>
+            </MudPaper>
+        </MudItem>
+    }
+</MudGrid>
+@code {
+    bool success;
+    bool showValues = false;
+    string[] errors = { };
+    MudTextField<string> pwField1;
+    MudForm form;
+    DALForm f = new DALForm();
+
+    private Dictionary<int, string> Drinks = new Dictionary<int, string>();
+    private Dictionary<int, string> AccountTypeRadioOptions = new Dictionary<int, string>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        LoadDrinks();
+        LoadAccountTypeRadioOptions();
+    }
+
+    private async void LoadDrinks()
+    {
+        Dictionary<int, string> tempDrinks = new Dictionary<int, string>();   
+        tempDrinks.Add(0, string.Empty);
+        tempDrinks.Add(1, "Coffee");
+        tempDrinks.Add(2, "Tea");
+        tempDrinks.Add(3, "Other");
+        //Drinks.Clear();
+        Drinks = tempDrinks;        
+    }
+
+        private async void LoadAccountTypeRadioOptions()
+    {
+        Dictionary<int, string> tempAccountTypeRadioOptions = new Dictionary<int, string>();   
+        tempAccountTypeRadioOptions.Add(1, "Personal");
+        tempAccountTypeRadioOptions.Add(2, "Professional");  
+        //AccountTypeRadioOptions.Clear();
+        AccountTypeRadioOptions = tempAccountTypeRadioOptions;        
+    }
+
+    public void FillData()
+    {
+        //simulate load data from api/db
+        f = new DALForm();
+        f.Username = "jmartinez";
+        f.Email = "dskerror@gmail.com";
+        f.FirstName = "Jonathan";
+        f.LastName = "Martinez";
+        f.DateOfBirth = DateTime.Parse("2/19/1981");
+        f.Password = "Qwerty1$";
+        f.Password2 = "Qwerty1$";
+        f.OnOffSwitch = true;
+        f.CoffeeOrTeaId = 1;
+        f.CoffeeOrTeaOther = "";
+        f.AccountTypeRadioOption = "Personal";
+        f.AgreeCheckboxValue = true;
+
+        StateHasChanged();
+
+        Snackbar.Add("Form filled!");
+    }
+    private async Task Submit()
+    {
+        //simulate send data to api/db
+        await form.Validate();
+        if (form.IsValid)
+        {
+            showValues = true;
+            Snackbar.Add("Form Submitted!");
+        }
+        else
+        {
+            showValues = false;
+            Snackbar.Add("Form has errors!");
+        }
+
+
+    }
+    private IEnumerable<string> PasswordStrength(string pw)
+    {
+        if (string.IsNullOrWhiteSpace(pw))
+        {
+            yield return "Password is required!";
+            yield break;
+        }
+        if (pw.Length < 8)
+            yield return "Password must be at least of length 8";
+        if (!Regex.IsMatch(pw, @"[A-Z]"))
+            yield return "Password must contain at least one capital letter";
+        if (!Regex.IsMatch(pw, @"[a-z]"))
+            yield return "Password must contain at least one lowercase letter";
+        if (!Regex.IsMatch(pw, @"[0-9]"))
+            yield return "Password must contain at least one digit";
+    }
+    private string PasswordMatch(string arg)
+    {
+        if (pwField1.Value != arg)
+            return "Passwords don't match";
+        return null;
+    }
+    public class DALForm
+    {
+        [Required]
+        [StringLength(8, ErrorMessage = "Name length can't be more than 8.")]
+        public string Username { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        [Required]
+        public string FirstName { get; set; }
+
+        [Required]
+        public string LastName { get; set; }
+
+        [Label("Date Of Birth Label")]
+        public DateTime? DateOfBirth { get; set; }
+
+        [Required]
+        [StringLength(30, ErrorMessage = "Password must be at least 8 characters long.", MinimumLength = 8)]
+        public string Password { get; set; }
+
+        [Required]
+        [Compare(nameof(Password))]
+        public string Password2 { get; set; }
+
+        public bool OnOffSwitch { get; set; }
+
+        public int CoffeeOrTeaId { get; set; }
+
+        public string CoffeeOrTeaOther { get; set; }
+
+        public string AccountTypeRadioOption { get; set; }
+
+        public bool AgreeCheckboxValue { get; set; }
+
+    }
+}

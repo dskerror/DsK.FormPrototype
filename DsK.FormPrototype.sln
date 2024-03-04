@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DsK.FormPrototype", "DsK.FormPrototype\DsK.FormPrototype\DsK.FormPrototype.csproj", "{E5B4428C-7E25-4A1F-975B-CBE212C79C7F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DsK.FormPrototype.Client", "DsK.FormPrototype\DsK.FormPrototype.Client\DsK.FormPrototype.Client.csproj", "{BBF137F2-EE82-40B8-B9AC-750689BD13FF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{E5B4428C-7E25-4A1F-975B-CBE212C79C7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E5B4428C-7E25-4A1F-975B-CBE212C79C7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E5B4428C-7E25-4A1F-975B-CBE212C79C7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E5B4428C-7E25-4A1F-975B-CBE212C79C7F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBF137F2-EE82-40B8-B9AC-750689BD13FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBF137F2-EE82-40B8-B9AC-750689BD13FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBF137F2-EE82-40B8-B9AC-750689BD13FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBF137F2-EE82-40B8-B9AC-750689BD13FF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {BAD24A52-75E7-4910-99E6-D890F4C07149}
+	EndGlobalSection
+EndGlobal
